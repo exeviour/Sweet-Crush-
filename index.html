@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sweet Crush — Infinite Match-3 App</title>
+  <style>
+    * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at top, #273052, #111524);
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: #fff;
+    }
+    .app-shell {
+      width: 390px;
+      height: 780px;
+      border-radius: 38px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background:
+        radial-gradient(circle at 50% 28%, rgba(164, 120, 255, 0.45), transparent 55%),
+        linear-gradient(180deg, #3f53b8 0%, #6858c7 45%, #4d88db 100%);
+      box-shadow: 0 28px 70px rgba(0, 0, 0, 0.65), inset 0 0 0 3px rgba(255, 255, 255, 0.16);
+    }
+    .peaks {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .peaks::before {
+      content: "";
+      position: absolute;
+      left: -15%;
+      right: -15%;
+      bottom: 84px;
+      height: 230px;
+      background: linear-gradient(135deg, transparent 48%, rgba(88, 152, 232, 0.55) 49%, rgba(62, 120, 205, 0.75) 100%);
+      clip-path: polygon(0% 100%, 14% 42%, 30% 78%, 48% 28%, 68% 72%, 85% 36%, 100% 82%, 100% 100%);
+    }
+    .top-hud {
+      position: relative;
+      z-index: 2;
+      padding: 16px 16px 12px;
+      background: linear-gradient(180deg, rgba(22, 33, 78, 0.85), rgba(34, 52, 118, 0.35));
+      border-bottom-left-radius: 26px;
+      border-bottom-right-radius: 26px;
+    }
+    .hud-top { display: flex; align-items: center; gap: 10px; }
+    .moves-pill {
+      background: linear-gradient(180deg, #283d8f, #18255c);
+      border: 2px solid #8cb2ff;
+      border-radius: 18px;
+      padding: 6px 12px;
+      text-align: center;
+      min-width: 74px;
+      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.35);
+    }
+    .moves-val { font-size: 28px; font-weight: 900; line-height: 1; }
+    .moves-sub { font-size: 10px; letter-spacing: 1px; color: #c8dcff; margin-top: 2px; }
+    .meter-box { flex: 1; }
+    .meter-track {
+      height: 15px;
+      border-radius: 999px;
+      background: rgba(13, 20, 48, 0.72);
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      padding: 2px;
+      overflow: hidden;
+    }
+    .meter-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #ffd84d, #ff8524, #ff4766);
+      transition: width 0.25s ease;
+    }
+    .star-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      margin-top: 4px;
+      padding: 0 6px;
+      color: #ffe885;
+      font-weight: 700;
+    }
+    .mascot {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 25%, #fff0b8, #e88b68);
+      border: 3px solid #ffffff;
+      display: grid;
+      place-items: center;
+      font-size: 26px;
+      box-shadow: 0 5px 14px rgba(0, 0, 0, 0.35);
+    }
+    .sub-row {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .level-tag {
+      background: rgba(18, 28, 68, 0.8);
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
+      color: #fff3b0;
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 13px;
+    }
+    .goal-pill {
+      background: linear-gradient(180deg, #ffffff, #e6efff);
+      color: #1f2847;
+      padding: 5px 16px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 800;
+      font-size: 13px;
+      box-shadow: 0 5px 14px rgba(15, 25, 65, 0.35);
+    }
+    .next-btn {
+      background: linear-gradient(180deg, #4ade80, #16a34a);
+      color: #fff;
+      border: 2px solid #bbf7d0;
+      border-radius: 999px;
+      padding: 5px 14px;
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+      display: none;
+    }
+    .next-btn.show { display: inline-block; }
+    .toast {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 4px 12px;
+      min-height: 24px;
+      color: #fff8d6;
+    }
+    .playfield {
+      position: relative;
+      z-index: 2;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(7, 48px);
+      grid-template-rows: repeat(7, 48px);
+      gap: 2px;
+      padding: 10px;
+      border-radius: 28px;
+      background: rgba(24, 36, 82, 0.28);
+    }
+    .slot {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      border-radius: 50%;
+    }
+    .slot.void { visibility: hidden; pointer-events: none; }
+    .slot.frosting {
+      background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.52), rgba(188, 224, 255, 0.22));
+      border-radius: 16px;
+    }
+    .piece {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      position: relative;
+      transition: transform 0.15s ease;
+      box-shadow: inset 0 -5px 8px rgba(0,0,0,0.32), inset 0 4px 7px rgba(255,255,255,0.65), 0 6px 10px rgba(10,16,40,0.35);
+    }
+    .piece::before {
+      content: "";
+      position: absolute;
+      top: 5px;
+      left: 7px;
+      width: 12px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.82);
+      transform: rotate(-22deg);
+    }
+    .slot.selected .piece { transform: scale(1.16); box-shadow: 0 0 0 3px #fff, 0 0 16px rgba(255,255,255,0.95); }
+    .p0 { background: radial-gradient(circle at 32% 28%, #ff857a, #d62424); }
+    .p1 { background: radial-gradient(circle at 32% 28%, #82caff, #1d74d6); border-radius: 14px; }
+    .p2 { background: radial-gradient(circle at 32% 28%, #88f7ad, #189e47); border-radius: 18px 7px 18px 7px; }
+    .p3 { background: radial-gradient(circle at 32% 28%, #fff385, #e3a300); }
+    .p4 { background: radial-gradient(circle at 32% 28%, #dea8ff, #8132c7); border-radius: 11px; }
+    .p5 { background: radial-gradient(circle at 32% 28%, #ffbe78, #d96011); }
+    .sp-line::after {
+      content: "";
+      position: absolute;
+      left: -4px;
+      right: -4px;
+      top: 50%;
+      height: 5px;
+      transform: translateY(-50%);
+      border-radius: 999px;
+      background: #fff;
+    }
+    .sp-bomb { box-shadow: 0 0 0 3px #fff, 0 0 14px rgba(255,240,150,0.95); }
+    .dock {
+      position: relative;
+      z-index: 2;
+      background: linear-gradient(180deg, rgba(244,248,255,0.95), rgba(214,228,252,0.98));
+      border-top-left-radius: 26px;
+      border-top-right-radius: 26px;
+      padding: 12px 14px 16px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+    .orb-btn {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      border: 2px solid #6b9be8;
+      background: radial-gradient(circle at 35% 25%, #ffffff, #cbe0ff);
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      cursor: pointer;
+      position: relative;
+    }
+    .orb-btn.armed { border-color: #ff8c00; box-shadow: 0 0 0 3px rgba(255,140,0,0.45); }
+    .pill-num {
+      position: absolute;
+      bottom: -4px;
+      right: -2px;
+      background: #2563eb;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 999px;
+      border: 1.5px solid #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <div class="peaks"></div>
+    <div>
+      <div class="top-hud">
+        <div class="hud-top">
+          <div class="moves-pill">
+            <div class="moves-val" id="moves">20</div>
+            <div class="moves-sub">MOVES</div>
+          </div>
+          <div class="meter-box">
+            <div class="meter-track"><div class="meter-fill" id="meter"></div></div>
+            <div class="star-row">
+              <span>★</span><span>★★</span><span>★★★ <span id="score">0/1000</span></span>
+            </div>
+          </div>
+          <div class="mascot">🐻</div>
+        </div>
+        <div class="sub-row">
+          <div class="level-tag" id="level-tag">LVL 1 · ∞</div>
+          <div class="goal-pill"><span>GOAL</span><span id="goal">10</span><span>🍬</span></div>
+          <button class="next-btn" id="next-btn">Next Level ▶</button>
+        </div>
+      </div>
+      <div class="toast" id="toast">Tap two adjacent candies to swap</div>
+    </div>
+    <div class="playfield" id="playfield"></div>
+    <div class="dock">
+      <button class="orb-btn" id="reset-btn" title="Retry Level">🔄</button>
+      <button class="orb-btn" id="hammer-btn" title="Smash 1 candy">🔨<span class="pill-num" id="hammer-n">2</span></button>
+      <button class="orb-btn" id="shuffle-btn" title="Shuffle candies">🔀<span class="pill-num" id="shuffle-n">2</span></button>
+      <button class="orb-btn" id="bomb-btn" title="3x3 Blast">💣<span class="pill-num" id="bomb-n">1</span></button>
+    </div>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>
