@@ -1,237 +1,337 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sweet Crush — Infinite Match-3 App</title>
+  <title>Sweet Crush — Infinite Levels Mobile App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@500;600;700;800&display=swap');
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     body {
       margin: 0;
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: radial-gradient(circle at top, #273052, #111524);
-      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
-      color: #fff;
+      padding: 12px;
+      background: radial-gradient(circle at top, #27325c 0%, #111526 70%, #0b0d18 100%);
+      font-family: 'Inter', system-ui, sans-serif;
+      color: #ffffff;
+      overflow-x: hidden;
     }
-    .app-shell {
-      width: 390px;
+
+    .app-title-font {
+      font-family: 'Fredoka', 'Inter', sans-serif;
+    }
+
+    /* Portrait App Shell */
+    .phone-frame {
+      width: 100%;
+      max-width: 390px;
       height: 780px;
+      max-height: 94vh;
       border-radius: 38px;
-      overflow: hidden;
       position: relative;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       background:
-        radial-gradient(circle at 50% 28%, rgba(164, 120, 255, 0.45), transparent 55%),
-        linear-gradient(180deg, #3f53b8 0%, #6858c7 45%, #4d88db 100%);
-      box-shadow: 0 28px 70px rgba(0, 0, 0, 0.65), inset 0 0 0 3px rgba(255, 255, 255, 0.16);
+        radial-gradient(circle at 50% 28%, rgba(178, 130, 255, 0.42), transparent 58%),
+        linear-gradient(180deg, #3f54bd 0%, #6a56ca 46%, #4b89de 100%);
+      box-shadow:
+        0 28px 70px rgba(0, 0, 0, 0.7),
+        inset 0 0 0 3px rgba(255, 255, 255, 0.18);
     }
-    .peaks {
+
+    /* Layered Mountain Backdrop */
+    .mountain-layer {
       position: absolute;
       inset: 0;
       pointer-events: none;
       overflow: hidden;
       z-index: 0;
     }
-    .peaks::before {
-      content: "";
+
+    .mountain-back {
       position: absolute;
-      left: -15%;
-      right: -15%;
+      left: -12%;
+      right: -12%;
       bottom: 84px;
-      height: 230px;
-      background: linear-gradient(135deg, transparent 48%, rgba(88, 152, 232, 0.55) 49%, rgba(62, 120, 205, 0.75) 100%);
-      clip-path: polygon(0% 100%, 14% 42%, 30% 78%, 48% 28%, 68% 72%, 85% 36%, 100% 82%, 100% 100%);
+      height: 250px;
+      background: linear-gradient(180deg, rgba(136, 178, 248, 0.45), rgba(84, 132, 218, 0.65));
+      clip-path: polygon(0% 100%, 12% 48%, 27% 76%, 46% 30%, 66% 68%, 84% 34%, 100% 78%, 100% 100%);
     }
+
+    .mountain-front {
+      position: absolute;
+      left: -14%;
+      right: -14%;
+      bottom: 76px;
+      height: 195px;
+      background: linear-gradient(180deg, rgba(84, 148, 232, 0.62), rgba(52, 108, 196, 0.85));
+      clip-path: polygon(0% 100%, 16% 56%, 34% 82%, 55% 40%, 75% 74%, 92% 45%, 100% 85%, 100% 100%);
+    }
+
+    /* Top HUD */
     .top-hud {
       position: relative;
       z-index: 2;
-      padding: 16px 16px 12px;
-      background: linear-gradient(180deg, rgba(22, 33, 78, 0.85), rgba(34, 52, 118, 0.35));
+      padding: 13px 14px 10px;
+      background: linear-gradient(180deg, rgba(20, 32, 78, 0.88), rgba(34, 52, 118, 0.38));
       border-bottom-left-radius: 26px;
       border-bottom-right-radius: 26px;
+      backdrop-filter: blur(6px);
     }
-    .hud-top { display: flex; align-items: center; gap: 10px; }
-    .moves-pill {
-      background: linear-gradient(180deg, #283d8f, #18255c);
-      border: 2px solid #8cb2ff;
+
+    .moves-badge {
+      background: linear-gradient(180deg, #2b429c, #17245c);
+      border: 2px solid #96baff;
       border-radius: 18px;
-      padding: 6px 12px;
+      padding: 6px 10px;
+      min-width: 72px;
       text-align: center;
-      min-width: 74px;
       box-shadow: 0 5px 12px rgba(0, 0, 0, 0.35);
     }
-    .moves-val { font-size: 28px; font-weight: 900; line-height: 1; }
-    .moves-sub { font-size: 10px; letter-spacing: 1px; color: #c8dcff; margin-top: 2px; }
-    .meter-box { flex: 1; }
+
     .meter-track {
       height: 15px;
       border-radius: 999px;
-      background: rgba(13, 20, 48, 0.72);
-      border: 2px solid rgba(255, 255, 255, 0.35);
+      background: rgba(11, 18, 44, 0.75);
+      border: 2px solid rgba(255, 255, 255, 0.36);
       padding: 2px;
       overflow: hidden;
     }
+
     .meter-fill {
       height: 100%;
       width: 0%;
       border-radius: 999px;
-      background: linear-gradient(90deg, #ffd84d, #ff8524, #ff4766);
+      background: linear-gradient(90deg, #ffe054, #ff8b24, #ff4766);
       transition: width 0.25s ease;
     }
-    .star-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      margin-top: 4px;
-      padding: 0 6px;
-      color: #ffe885;
-      font-weight: 700;
-    }
-    .mascot {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 25%, #fff0b8, #e88b68);
+
+    .mascot-badge {
+      width: 50px;
+      height: 50px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 25%, #fff2be, #e98a67);
       border: 3px solid #ffffff;
       display: grid;
       place-items: center;
-      font-size: 26px;
+      font-size: 25px;
+      flex-shrink: 0;
       box-shadow: 0 5px 14px rgba(0, 0, 0, 0.35);
     }
-    .sub-row {
-      margin-top: 10px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .level-tag {
-      background: rgba(18, 28, 68, 0.8);
-      border: 1.5px solid rgba(255, 255, 255, 0.35);
-      color: #fff3b0;
-      padding: 5px 14px;
+
+    .level-pill {
+      background: rgba(18, 28, 68, 0.75);
+      border: 1.5px solid rgba(182, 212, 255, 0.55);
+      color: #eef5ff;
       border-radius: 999px;
+      padding: 4px 12px;
       font-weight: 800;
-      font-size: 13px;
-    }
-    .goal-pill {
-      background: linear-gradient(180deg, #ffffff, #e6efff);
-      color: #1f2847;
-      padding: 5px 16px;
-      border-radius: 999px;
-      display: flex;
+      font-size: 12px;
+      display: inline-flex;
       align-items: center;
       gap: 6px;
+    }
+
+    .goal-pill {
+      background: linear-gradient(180deg, #ffffff, #e5efff);
+      color: #1c2544;
+      border-radius: 999px;
+      padding: 4px 14px;
       font-weight: 800;
       font-size: 13px;
-      box-shadow: 0 5px 14px rgba(15, 25, 65, 0.35);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 5px 14px rgba(14, 24, 62, 0.35);
     }
-    .next-btn {
+
+    .next-level-btn {
       background: linear-gradient(180deg, #4ade80, #16a34a);
-      color: #fff;
+      color: #ffffff;
       border: 2px solid #bbf7d0;
       border-radius: 999px;
       padding: 5px 14px;
       font-weight: 800;
-      font-size: 13px;
+      font-size: 12px;
       cursor: pointer;
-      display: none;
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.45);
+      transition: transform 0.12s ease, filter 0.12s ease;
     }
-    .next-btn.show { display: inline-block; }
-    .toast {
+
+    .next-level-btn:hover {
+      filter: brightness(1.06);
+    }
+
+    .next-level-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Non-Boxy Floating Playfield */
+    .playfield-wrap {
       position: relative;
       z-index: 2;
-      text-align: center;
-      font-size: 13px;
-      font-weight: 700;
-      padding: 4px 12px;
-      min-height: 24px;
-      color: #fff8d6;
-    }
-    .playfield {
-      position: relative;
-      z-index: 2;
-      margin: auto;
-      display: grid;
-      grid-template-columns: repeat(7, 48px);
-      grid-template-rows: repeat(7, 48px);
-      gap: 2px;
-      padding: 10px;
-      border-radius: 28px;
-      background: rgba(24, 36, 82, 0.28);
-    }
-    .slot {
-      width: 48px;
-      height: 48px;
+      flex: 1;
       display: grid;
       place-items: center;
-      cursor: pointer;
-      border-radius: 50%;
+      padding: 6px 10px;
     }
-    .slot.void { visibility: hidden; pointer-events: none; }
-    .slot.frosting {
-      background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.52), rgba(188, 224, 255, 0.22));
-      border-radius: 16px;
+
+    .playfield {
+      display: grid;
+      grid-template-columns: repeat(7, 46px);
+      grid-template-rows: repeat(7, 46px);
+      gap: 3px;
+      padding: 8px;
+      border-radius: 28px;
+      background: rgba(20, 32, 76, 0.25);
     }
-    .piece {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
+
+    @media (max-width: 380px) {
+      .playfield {
+        grid-template-columns: repeat(7, 40px);
+        grid-template-rows: repeat(7, 40px);
+        gap: 2px;
+      }
+      .slot {
+        width: 40px !important;
+        height: 40px !important;
+      }
+      .piece {
+        width: 32px !important;
+        height: 32px !important;
+      }
+    }
+
+    .slot {
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
       position: relative;
-      transition: transform 0.15s ease;
-      box-shadow: inset 0 -5px 8px rgba(0,0,0,0.32), inset 0 4px 7px rgba(255,255,255,0.65), 0 6px 10px rgba(10,16,40,0.35);
+      cursor: pointer;
+      border-radius: 999px;
+      touch-action: none;
     }
+
+    .slot.void {
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .slot.frosting {
+      background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.54), rgba(182, 222, 255, 0.24));
+      border-radius: 16px;
+      box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.75);
+    }
+
+    /* Glossy Rounded Candies */
+    .piece {
+      width: 37px;
+      height: 37px;
+      border-radius: 999px;
+      position: relative;
+      transition: transform 0.14s ease, filter 0.14s ease;
+      box-shadow:
+        inset 0 -5px 8px rgba(0, 0, 0, 0.34),
+        inset 0 4px 7px rgba(255, 255, 255, 0.68),
+        0 6px 10px rgba(10, 16, 40, 0.36);
+    }
+
     .piece::before {
       content: "";
       position: absolute;
       top: 5px;
       left: 7px;
-      width: 12px;
-      height: 7px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.82);
+      width: 11px;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.85);
       transform: rotate(-22deg);
+      pointer-events: none;
     }
-    .slot.selected .piece { transform: scale(1.16); box-shadow: 0 0 0 3px #fff, 0 0 16px rgba(255,255,255,0.95); }
+
+    .slot.selected .piece {
+      transform: scale(1.16);
+      filter: brightness(1.14);
+      box-shadow:
+        0 0 0 3px #ffffff,
+        0 0 16px rgba(255, 255, 255, 0.95),
+        0 8px 14px rgba(0, 0, 0, 0.45);
+    }
+
+    /* 6 Distinct Candy Types & Silhouettes */
     .p0 { background: radial-gradient(circle at 32% 28%, #ff857a, #d62424); }
-    .p1 { background: radial-gradient(circle at 32% 28%, #82caff, #1d74d6); border-radius: 14px; }
-    .p2 { background: radial-gradient(circle at 32% 28%, #88f7ad, #189e47); border-radius: 18px 7px 18px 7px; }
+    .p1 { background: radial-gradient(circle at 32% 28%, #82caff, #1d74d6); border-radius: 13px; }
+    .p2 { background: radial-gradient(circle at 32% 28%, #88f7ad, #189e47); border-radius: 18px 6px 18px 6px; }
     .p3 { background: radial-gradient(circle at 32% 28%, #fff385, #e3a300); }
-    .p4 { background: radial-gradient(circle at 32% 28%, #dea8ff, #8132c7); border-radius: 11px; }
-    .p5 { background: radial-gradient(circle at 32% 28%, #ffbe78, #d96011); }
+    .p4 { background: radial-gradient(circle at 32% 28%, #dea8ff, #8132c7); border-radius: 10px; }
+    .p5 { background: radial-gradient(circle at 32% 28%, #ffbe78, #d96011); border-radius: 8px 18px 8px 18px; }
+
+    /* Special Candies: Line Blaster & 3x3 Bomb */
     .sp-line::after {
       content: "";
       position: absolute;
-      left: -4px;
-      right: -4px;
+      left: -5px;
+      right: -5px;
       top: 50%;
       height: 5px;
       transform: translateY(-50%);
       border-radius: 999px;
-      background: #fff;
+      background: #ffffff;
+      box-shadow: 0 0 8px #ffffff;
+      pointer-events: none;
     }
-    .sp-bomb { box-shadow: 0 0 0 3px #fff, 0 0 14px rgba(255,240,150,0.95); }
-    .dock {
+
+    .sp-bomb {
+      box-shadow:
+        0 0 0 3px #ffffff,
+        0 0 15px rgba(255, 242, 160, 0.98),
+        0 6px 12px rgba(0, 0, 0, 0.42);
+    }
+
+    .sp-bomb::after {
+      content: "✦";
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-size: 15px;
+      color: #ffffff;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.65);
+      pointer-events: none;
+    }
+
+    /* Bottom Booster Dock */
+    .booster-dock {
       position: relative;
       z-index: 2;
-      background: linear-gradient(180deg, rgba(244,248,255,0.95), rgba(214,228,252,0.98));
+      background: linear-gradient(180deg, rgba(244, 248, 255, 0.95), rgba(214, 228, 252, 0.98));
       border-top-left-radius: 26px;
       border-top-right-radius: 26px;
       padding: 12px 14px 16px;
       display: flex;
       justify-content: space-around;
       align-items: center;
+      box-shadow: 0 -8px 24px rgba(12, 20, 54, 0.35);
     }
-    .orb-btn {
+
+    .booster-btn {
       width: 54px;
       height: 54px;
-      border-radius: 50%;
+      border-radius: 999px;
       border: 2px solid #6b9be8;
       background: radial-gradient(circle at 35% 25%, #ffffff, #cbe0ff);
       display: grid;
@@ -239,310 +339,614 @@
       font-size: 22px;
       cursor: pointer;
       position: relative;
+      box-shadow: 0 5px 10px rgba(26, 46, 102, 0.25);
+      transition: transform 0.12s ease;
     }
-    .orb-btn.armed { border-color: #ff8c00; box-shadow: 0 0 0 3px rgba(255,140,0,0.45); }
-    .pill-num {
+
+    .booster-btn:active {
+      transform: scale(0.94);
+    }
+
+    .booster-btn.armed {
+      border-color: #ff8c00;
+      box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.48), 0 6px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    .count-badge {
       position: absolute;
       bottom: -4px;
       right: -2px;
       background: #2563eb;
-      color: #fff;
+      color: #ffffff;
       font-size: 11px;
       font-weight: 800;
       padding: 1px 6px;
       border-radius: 999px;
-      border: 1.5px solid #fff;
+      border: 1.5px solid #ffffff;
     }
   </style>
 </head>
 <body>
-  <div class="app-shell">
-    <div class="peaks"></div>
-    <div>
-      <div class="top-hud">
-        <div class="hud-top">
-          <div class="moves-pill">
-            <div class="moves-val" id="moves">20</div>
-            <div class="moves-sub">MOVES</div>
-          </div>
-          <div class="meter-box">
-            <div class="meter-track"><div class="meter-fill" id="meter"></div></div>
-            <div class="star-row">
-              <span>★</span><span>★★</span><span>★★★ <span id="score">0/1000</span></span>
-            </div>
-          </div>
-          <div class="mascot">🐻</div>
+  <main class="phone-frame" aria-label="Sweet Crush Infinite Levels Mobile App">
+    <!-- Mountain Backdrop -->
+    <div class="mountain-layer" aria-hidden="true">
+      <div class="mountain-back"></div>
+      <div class="mountain-front"></div>
+    </div>
+
+    <!-- Top HUD -->
+    <header class="top-hud">
+      <div class="flex items-center gap-2.5">
+        <div class="moves-badge">
+          <div id="moves-val" class="app-title-font text-2xl font-bold leading-none">20</div>
+          <div class="text-[10px] font-bold tracking-wider text-blue-100 mt-0.5">MOVES</div>
         </div>
-        <div class="sub-row">
-          <div class="level-tag" id="level-tag">LVL 1 · ∞</div>
-          <div class="goal-pill"><span>GOAL</span><span id="goal">10</span><span>🍬</span></div>
-          <button class="next-btn" id="next-btn">Next Level ▶</button>
+
+        <div class="flex-1">
+          <div class="meter-track">
+            <div id="meter-fill" class="meter-fill"></div>
+          </div>
+          <div class="flex justify-between items-center text-xs font-bold text-amber-200 mt-1 px-1">
+            <span>★</span>
+            <span>★★</span>
+            <span>★★★ <span id="score-txt">0/1000</span></span>
+          </div>
         </div>
+
+        <div class="mascot-badge" title="Level Buddy">🐻</div>
       </div>
-      <div class="toast" id="toast">Tap two adjacent candies to swap</div>
-    </div>
-    <div class="playfield" id="playfield"></div>
-    <div class="dock">
-      <button class="orb-btn" id="reset-btn" title="Retry Level">🔄</button>
-      <button class="orb-btn" id="hammer-btn" title="Smash 1 candy">🔨<span class="pill-num" id="hammer-n">2</span></button>
-      <button class="orb-btn" id="shuffle-btn" title="Shuffle candies">🔀<span class="pill-num" id="shuffle-n">2</span></button>
-      <button class="orb-btn" id="bomb-btn" title="3x3 Blast">💣<span class="pill-num" id="bomb-n">1</span></button>
-    </div>
-  </div>
+
+      <div class="flex items-center justify-center gap-2 mt-2 flex-wrap">
+        <span class="level-pill">LVL <span id="level-val">1</span></span>
+        <div class="goal-pill">
+          <span>GOAL</span>
+          <span id="goal-val">12</span>
+          <span id="goal-icon">🍬</span>
+        </div>
+        <button id="btn-next-level" type="button" class="next-level-btn hidden">
+          Next Level ▶
+        </button>
+      </div>
+
+      <div id="status-toast" class="text-center text-xs font-semibold text-amber-100 mt-1.5 min-h-[18px]">
+        Tap or swipe adjacent candies to match 3+
+      </div>
+    </header>
+
+    <!-- Non-Boxy Floating Playfield -->
+    <section class="playfield-wrap" aria-label="Match-3 Board">
+      <div id="playfield" class="playfield"></div>
+    </section>
+
+    <!-- Bottom Booster Dock -->
+    <footer class="booster-dock" aria-label="Boosters">
+      <button id="btn-reset" type="button" class="booster-btn" title="Retry Current Level" aria-label="Retry Current Level">
+        🔄
+      </button>
+      <button id="btn-hammer" type="button" class="booster-btn" title="Lollipop Hammer (Clear 1 candy)" aria-label="Hammer Booster">
+        🔨<span id="cnt-hammer" class="count-badge">2</span>
+      </button>
+      <button id="btn-shuffle" type="button" class="booster-btn" title="Shuffle Board" aria-label="Shuffle Booster">
+        🔀<span id="cnt-shuffle" class="count-badge">2</span>
+      </button>
+      <button id="btn-bomb" type="button" class="booster-btn" title="Party Bomb (3x3 blast)" aria-label="3x3 Bomb Booster">
+        💣<span id="cnt-bomb" class="count-badge">1</span>
+      </button>
+    </footer>
+  </main>
+
   <script>
+    const SIZE = 7;
+    const TYPES = 6;
+    const GOAL_ICONS = ["🍬", "💎", "🥝", "⭐", "🍇", "🍊"];
 
-    const SIZE = 7, TYPES = 6;
-const PATTERNS = [
-  { voids: ["0,0","0,1","0,5","0,6","1,0","1,6","5,0","5,6","6,0","6,1","6,5","6,6"], frost: ["3,2","3,3","3,4"] },
-  { voids: ["0,0","0,6","6,0","6,6"], frost: ["2,2","2,4","4,2","4,4"] },
-  { voids: ["0,0","0,1","5,5","6,5","6,6"], frost: ["3,1","3,2","3,4","3,5"] },
-  { voids: ["0,3","3,0","3,6","6,3"], frost: ["1,3","3,1","3,5","5,3"] }
-];
+    // Distinct cutout patterns cycled and varied infinitely across levels
+    const CUTOUT_PATTERNS = [
+      // Pattern 0: Rounded diamond corners
+      new Set([
+        "0,0", "0,1", "0,5", "0,6",
+        "1,0", "1,6",
+        "5,0", "5,6",
+        "6,0", "6,1", "6,5", "6,6"
+      ]),
+      // Pattern 1: Hourglass / waist cutouts
+      new Set([
+        "2,0", "3,0", "4,0",
+        "2,6", "3,6", "4,6"
+      ]),
+      // Pattern 2: Corner steps
+      new Set([
+        "0,0", "0,1", "1,0",
+        "0,5", "0,6", "1,6",
+        "5,0", "6,0", "6,1",
+        "6,5", "6,6", "5,6"
+      ]),
+      // Pattern 3: Arch top & bottom notches
+      new Set([
+        "0,3", "6,3",
+        "3,0", "3,6"
+      ])
+    ];
 
-let level = 1, target = 1000, goalTotal = 10, maxMoves = 20;
-let voids = new Set(), frost = new Set(), grid = [], selected = null;
-let score = 0, goalDone = 0, moves = 20, mode = null;
-let hammers = 2, shuffles = 2, bombs = 1, busy = false, levelCleared = false;
+    let currentLevel = 1;
+    let targetScore = 1000;
+    let goalTotal = 12;
+    let goalCandyType = 0;
+    let voidCells = new Set();
+    let initialFrosting = new Set();
 
-const fieldEl = document.getElementById("playfield");
-const toastEl = document.getElementById("toast");
-const nextBtn = document.getElementById("next-btn");
-const isVoid = (r, c) => voids.has(`${r},${c}`);
+    let grid = [];
+    let frosting = new Set();
+    let selected = null;
+    let pointerStart = null;
+    let score = 0;
+    let goalCleared = 0;
+    let movesLeft = 20;
+    let levelCompleted = false;
 
-function buildLevelConfig(lvl) {
-  const pat = PATTERNS[(lvl - 1) % PATTERNS.length];
-  return {
-    voids: new Set(pat.voids),
-    frost: new Set(pat.frost),
-    target: 1000 + (lvl - 1) * 450,
-    goalTotal: 10 + (lvl - 1) * 3,
-    maxMoves: Math.max(16, 22 - Math.floor((lvl - 1) / 3))
-  };
-}
+    let activeBooster = null;
+    let hammerCount = 2;
+    let shuffleCount = 2;
+    let bombCount = 1;
+    let isBusy = false;
 
-function startLevel(lvl = level) {
-  level = lvl;
-  const cfg = buildLevelConfig(level);
-  voids = cfg.voids;
-  frost = cfg.frost;
-  target = cfg.target;
-  goalTotal = cfg.goalTotal;
-  maxMoves = cfg.maxMoves;
-  moves = maxMoves;
-  score = 0;
-  goalDone = 0;
-  selected = null;
-  mode = null;
-  levelCleared = false;
-  nextBtn.classList.remove("show");
+    const playfieldEl = document.getElementById("playfield");
+    const toastEl = document.getElementById("status-toast");
+    const nextLevelBtn = document.getElementById("btn-next-level");
 
-  grid = Array.from({ length: SIZE }, (_, r) =>
-    Array.from({ length: SIZE }, (_, c) => {
-      if (isVoid(r, c)) return null;
-      const bad = new Set();
-      if (c >= 2 && grid[r]?.[c - 1]?.type === grid[r]?.[c - 2]?.type) bad.add(grid[r][c - 1].type);
-      if (r >= 2 && grid[r - 1]?.[c]?.type === grid[r - 2]?.[c]?.type) bad.add(grid[r - 1][c].type);
-      const pool = Array.from({ length: TYPES }, (_, i) => i).filter(i => !bad.has(i));
-      return { type: pool[Math.floor(Math.random() * pool.length)], special: null };
-    })
-  );
-  syncUI(`Level ${level} — Reach ${target} pts & clear ${goalTotal} 🍬`);
-  draw();
-}
+    const isVoid = (r, c) => voidCells.has(`${r},${c}`);
+    const inBounds = (r, c) => r >= 0 && r < SIZE && c >= 0 && c < SIZE && !isVoid(r, c);
 
-function syncUI(msg) {
-  document.getElementById("level-tag").textContent = `LVL ${level} · ∞`;
-  document.getElementById("moves").textContent = moves;
-  document.getElementById("score").textContent = `${score}/${target}`;
-  document.getElementById("goal").textContent = Math.max(0, goalTotal - goalDone);
-  document.getElementById("meter").style.width = `${Math.min(100, (score / target) * 100)}%`;
-  document.getElementById("hammer-n").textContent = hammers;
-  document.getElementById("shuffle-n").textContent = shuffles;
-  document.getElementById("bomb-n").textContent = bombs;
-  document.getElementById("hammer-btn").classList.toggle("armed", mode === "hammer");
-  document.getElementById("bomb-btn").classList.toggle("armed", mode === "bomb");
-  if (msg) toastEl.textContent = msg;
-}
+    // Deterministic-friendly infinite level generator
+    function generateLevelConfig(lvl) {
+      const pattern = CUTOUT_PATTERNS[(lvl - 1) % CUTOUT_PATTERNS.length];
+      const voids = new Set(pattern);
 
-function findMatches() {
-  const matched = new Set();
-  const specials = [];
-  for (let r = 0; r < SIZE; r++) {
-    let c = 0;
-    while (c < SIZE) {
-      const cur = grid[r][c];
-      if (!cur) { c++; continue; }
-      let end = c + 1;
-      while (end < SIZE && grid[r][end]?.type === cur.type) end++;
-      if (end - c >= 3) {
-        for (let k = c; k < end; k++) matched.add(`${r},${k}`);
-        if (end - c >= 4) specials.push({ r, c: Math.floor((c + end - 1) / 2), type: cur.type, special: end - c >= 5 ? "bomb" : "line" });
+      // Every 5th level adds an extra pair of inner cutouts while keeping plenty of playable tiles
+      if (lvl % 5 === 0) {
+        voids.add("2,3");
+        voids.add("4,3");
       }
-      c = end;
-    }
-  }
-  for (let c = 0; c < SIZE; c++) {
-    let r = 0;
-    while (r < SIZE) {
-      const cur = grid[r][c];
-      if (!cur) { r++; continue; }
-      let end = r + 1;
-      while (end < SIZE && grid[end][c]?.type === cur.type) end++;
-      if (end - r >= 3) {
-        for (let k = r; k < end; k++) matched.add(`${k},${c}`);
-        if (end - r >= 4) specials.push({ r: Math.floor((r + end - 1) / 2), c, type: cur.type, special: end - r >= 5 ? "bomb" : "line" });
-      }
-      r = end;
-    }
-  }
-  return { matched, specials };
-}
 
-function dropCandies() {
-  for (let c = 0; c < SIZE; c++) {
-    let write = SIZE - 1;
-    for (let r = SIZE - 1; r >= 0; r--) {
-      if (isVoid(r, c)) { write = r - 1; continue; }
-      if (grid[r][c]) {
-        if (write !== r) { grid[write][c] = grid[r][c]; grid[r][c] = null; }
-        write--;
+      const frost = new Set();
+      const frostCount = Math.min(9, 2 + Math.floor(lvl * 0.8));
+      const candidates = [];
+      for (let r = 1; r < SIZE - 1; r++) {
+        for (let c = 1; c < SIZE - 1; c++) {
+          if (!voids.has(`${r},${c}`)) {
+            candidates.push(`${r},${c}`);
+          }
+        }
+      }
+      // Rotate candidates by level index so frosting spreads naturally
+      const offset = (lvl * 3) % Math.max(1, candidates.length);
+      for (let i = 0; i < frostCount && i < candidates.length; i++) {
+        frost.add(candidates[(offset + i * 2) % candidates.length]);
+      }
+
+      const scaledTarget = 900 + (lvl - 1) * 350 + Math.floor(Math.pow(lvl, 1.35) * 40);
+      const scaledGoal = Math.min(35, 10 + lvl * 2);
+      const scaledMoves = Math.max(15, 22 - (lvl % 3) + Math.floor(lvl / 4));
+      const candyType = (lvl - 1) % TYPES;
+
+      return {
+        targetScore: Math.round(scaledTarget / 50) * 50,
+        goalTotal: scaledGoal,
+        moves: scaledMoves,
+        goalCandyType: candyType,
+        voidCells: voids,
+        initialFrosting: frost
+      };
+    }
+
+    function startLevel(lvl = currentLevel, grantBoosterBonus = false) {
+      try {
+        currentLevel = Math.max(1, lvl);
+        const cfg = generateLevelConfig(currentLevel);
+        targetScore = cfg.targetScore;
+        goalTotal = cfg.goalTotal;
+        movesLeft = cfg.moves;
+        goalCandyType = cfg.goalCandyType;
+        voidCells = cfg.voidCells;
+        initialFrosting = cfg.initialFrosting;
+
+        if (grantBoosterBonus && currentLevel > 1) {
+          hammerCount += 1;
+          shuffleCount += 1;
+          if (currentLevel % 2 === 0) bombCount += 1;
+        }
+
+        frosting = new Set(initialFrosting);
+        grid = Array.from({ length: SIZE }, (_, r) =>
+          Array.from({ length: SIZE }, (_, c) => {
+            if (!inBounds(r, c)) return null;
+            const blockedTypes = new Set();
+            if (c >= 2 && grid[r]?.[c - 1] && grid[r]?.[c - 1]?.type === grid[r]?.[c - 2]?.type) {
+              blockedTypes.add(grid[r][c - 1].type);
+            }
+            if (r >= 2 && grid[r - 1]?.[c] && grid[r - 1]?.[c]?.type === grid[r - 2]?.[c]?.type) {
+              blockedTypes.add(grid[r - 1][c].type);
+            }
+            const options = Array.from({ length: TYPES }, (_, i) => i).filter(i => !blockedTypes.has(i));
+            const chosen = options[Math.floor(Math.random() * options.length)] ?? Math.floor(Math.random() * TYPES);
+            return { type: chosen, special: null };
+          })
+        );
+
+        score = 0;
+        goalCleared = 0;
+        selected = null;
+        pointerStart = null;
+        activeBooster = null;
+        levelCompleted = false;
+        isBusy = false;
+
+        nextLevelBtn.classList.add("hidden");
+        syncHud(
+          grantBoosterBonus
+            ? `Level ${currentLevel}! +1 Hammer & Shuffle bonus`
+            : `Level ${currentLevel} — Match ${goalTotal} ${GOAL_ICONS[goalCandyType]} & reach ${targetScore} pts`
+        );
+        renderBoard();
+      } catch (err) {
+        toastEl.textContent = "Resetting level...";
       }
     }
-    for (let r = write; r >= 0; r--) {
-      if (!isVoid(r, c)) grid[r][c] = { type: Math.floor(Math.random() * TYPES), special: null };
-    }
-  }
-}
 
-async function settle(combo = 1) {
-  busy = true;
-  while (true) {
-    const { matched, specials } = findMatches();
-    if (!matched.size) break;
-    const blast = new Set(matched);
-    for (const key of matched) {
-      const [r, c] = key.split(",").map(Number);
-      const item = grid[r][c];
-      if (item?.special === "line") {
-        for (let cc = 0; cc < SIZE; cc++) if (!isVoid(r, cc)) blast.add(`${r},${cc}`);
-      } else if (item?.special === "bomb") {
-        for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
-          const nr = r + dr, nc = c + dc;
-          if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && !isVoid(nr, nc)) blast.add(`${nr},${nc}`);
+    function syncHud(message) {
+      document.getElementById("level-val").textContent = currentLevel;
+      document.getElementById("moves-val").textContent = movesLeft;
+      document.getElementById("score-txt").textContent = `${score}/${targetScore}`;
+      document.getElementById("goal-val").textContent = Math.max(0, goalTotal - goalCleared);
+      document.getElementById("goal-icon").textContent = GOAL_ICONS[goalCandyType];
+      document.getElementById("meter-fill").style.width = `${Math.min(100, (score / targetScore) * 100)}%`;
+      document.getElementById("cnt-hammer").textContent = hammerCount;
+      document.getElementById("cnt-shuffle").textContent = shuffleCount;
+      document.getElementById("cnt-bomb").textContent = bombCount;
+      document.getElementById("btn-hammer").classList.toggle("armed", activeBooster === "hammer");
+      document.getElementById("btn-bomb").classList.toggle("armed", activeBooster === "bomb");
+      if (message) toastEl.textContent = message;
+    }
+
+    function findMatches() {
+      const matched = new Set();
+      const spawnedSpecials = [];
+
+      // Horizontal runs
+      for (let r = 0; r < SIZE; r++) {
+        let c = 0;
+        while (c < SIZE) {
+          const cur = grid[r][c];
+          if (!cur) { c++; continue; }
+          let end = c + 1;
+          while (end < SIZE && grid[r][end]?.type === cur.type) end++;
+          const len = end - c;
+          if (len >= 3) {
+            for (let k = c; k < end; k++) matched.add(`${r},${k}`);
+            if (len >= 4) {
+              spawnedSpecials.push({
+                r,
+                c: Math.floor((c + end - 1) / 2),
+                type: cur.type,
+                special: len >= 5 ? "bomb" : "line"
+              });
+            }
+          }
+          c = end;
+        }
+      }
+
+      // Vertical runs
+      for (let c = 0; c < SIZE; c++) {
+        let r = 0;
+        while (r < SIZE) {
+          const cur = grid[r][c];
+          if (!cur) { r++; continue; }
+          let end = r + 1;
+          while (end < SIZE && grid[end][c]?.type === cur.type) end++;
+          const len = end - r;
+          if (len >= 3) {
+            for (let k = r; k < end; k++) matched.add(`${k},${c}`);
+            if (len >= 4) {
+              spawnedSpecials.push({
+                r: Math.floor((r + end - 1) / 2),
+                c,
+                type: cur.type,
+                special: len >= 5 ? "bomb" : "line"
+              });
+            }
+          }
+          r = end;
+        }
+      }
+
+      return { matched, spawnedSpecials };
+    }
+
+    function applyGravityAndRefill() {
+      for (let c = 0; c < SIZE; c++) {
+        let writeRow = SIZE - 1;
+        for (let r = SIZE - 1; r >= 0; r--) {
+          if (!inBounds(r, c)) {
+            writeRow = r - 1;
+            continue;
+          }
+          if (grid[r][c]) {
+            if (writeRow !== r) {
+              grid[writeRow][c] = grid[r][c];
+              grid[r][c] = null;
+            }
+            writeRow--;
+          }
+        }
+        for (let r = writeRow; r >= 0; r--) {
+          if (inBounds(r, c)) {
+            grid[r][c] = { type: Math.floor(Math.random() * TYPES), special: null };
+          }
         }
       }
     }
-    for (const key of blast) {
-      frost.delete(key);
-      const [r, c] = key.split(",").map(Number);
-      if (grid[r][c]?.type === 0) goalDone++;
-      grid[r][c] = null;
+
+    async function resolveCascades(combo = 1) {
+      isBusy = true;
+      try {
+        while (true) {
+          const { matched, spawnedSpecials } = findMatches();
+          if (!matched.size) break;
+
+          const clearSet = new Set(matched);
+          for (const key of matched) {
+            const [r, c] = key.split(",").map(Number);
+            const item = grid[r][c];
+            if (item?.special === "line") {
+              for (let cc = 0; cc < SIZE; cc++) {
+                if (inBounds(r, cc)) clearSet.add(`${r},${cc}`);
+              }
+            } else if (item?.special === "bomb") {
+              for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                  const nr = r + dr;
+                  const nc = c + dc;
+                  if (inBounds(nr, nc)) clearSet.add(`${nr},${nc}`);
+                }
+              }
+            }
+          }
+
+          for (const key of clearSet) {
+            frosting.delete(key);
+            const [r, c] = key.split(",").map(Number);
+            if (grid[r][c]?.type === goalCandyType) goalCleared++;
+            grid[r][c] = null;
+          }
+
+          for (const sp of spawnedSpecials) {
+            if (inBounds(sp.r, sp.c)) {
+              grid[sp.r][sp.c] = { type: sp.type, special: sp.special };
+            }
+          }
+
+          score += clearSet.size * 25 * combo;
+          syncHud(combo > 1 ? `Sweet Combo x${combo}!` : "Nice match!");
+          renderBoard();
+          await new Promise(resolve => setTimeout(resolve, 175));
+
+          applyGravityAndRefill();
+          renderBoard();
+          await new Promise(resolve => setTimeout(resolve, 175));
+          combo++;
+        }
+
+        if (score >= targetScore && goalCleared >= goalTotal) {
+          levelCompleted = true;
+          nextLevelBtn.classList.remove("hidden");
+          syncHud(`Level ${currentLevel} Complete! Tap Next Level ▶`);
+        } else if (movesLeft <= 0) {
+          syncHud(`Out of moves on Level ${currentLevel}! Tap 🔄 to retry`);
+        }
+      } finally {
+        isBusy = false;
+      }
     }
-    for (const sp of specials) {
-      if (!isVoid(sp.r, sp.c)) grid[sp.r][sp.c] = { type: sp.type, special: sp.special };
-    }
-    score += blast.size * 25 * combo;
-    draw();
-    await new Promise(r => setTimeout(r, 170));
-    dropCandies();
-    draw();
-    await new Promise(r => setTimeout(r, 170));
-    combo++;
-  }
 
-  if (!levelCleared && score >= target && goalDone >= goalTotal) {
-    levelCleared = true;
-    hammers++;
-    bombs++;
-    nextBtn.classList.add("show");
-    syncUI(`Level ${level} Cleared! +1 🔨 & +1 💣 earned!`);
-  } else if (!levelCleared && moves <= 0) {
-    syncUI("Out of moves! Tap 🔄 to retry");
-  } else if (!levelCleared) {
-    syncUI(combo > 1 ? `Sweet Combo x${combo}!` : "Ready");
-  }
-  busy = false;
-}
+    async function trySwap(a, b) {
+      if (levelCompleted || !inBounds(a.r, a.c) || !inBounds(b.r, b.c)) return;
+      if (Math.abs(a.r - b.r) + Math.abs(a.c - b.c) !== 1) return;
 
-async function onTap(r, c) {
-  if (busy || moves <= 0 || isVoid(r, c) || !grid[r][c]) return;
-  if (mode === "hammer" && hammers > 0) {
-    hammers--; mode = null; frost.delete(`${r},${c}`); grid[r][c] = null; score += 50;
-    dropCandies(); draw(); await settle(); return;
-  }
-  if (mode === "bomb" && bombs > 0) {
-    bombs--; mode = null;
-    for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
-      const nr = r + dr, nc = c + dc;
-      if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && !isVoid(nr, nc)) { frost.delete(`${nr},${nc}`); grid[nr][nc] = null; }
-    }
-    score += 150; dropCandies(); draw(); await settle(); return;
-  }
-  if (!selected) { selected = { r, c }; draw(); return; }
-  if (Math.abs(selected.r - r) + Math.abs(selected.c - c) !== 1) { selected = { r, c }; draw(); return; }
+      selected = null;
+      const temp = grid[a.r][a.c];
+      grid[a.r][a.c] = grid[b.r][b.c];
+      grid[b.r][b.c] = temp;
+      renderBoard();
 
-  const a = selected, b = { r, c };
-  selected = null;
-  [grid[a.r][a.c], grid[b.r][b.c]] = [grid[b.r][b.c], grid[a.r][a.c]];
-  draw();
-
-  if (findMatches().matched.size) {
-    moves--; syncUI(); await settle();
-  } else {
-    await new Promise(r => setTimeout(r, 150));
-    [grid[a.r][a.c], grid[b.r][b.c]] = [grid[b.r][b.c], grid[a.r][a.c]];
-    syncUI("Try another swap");
-    draw();
-  }
-}
-
-function draw() {
-  fieldEl.innerHTML = "";
-  for (let r = 0; r < SIZE; r++) {
-    for (let c = 0; c < SIZE; c++) {
-      const slot = document.createElement("div");
-      slot.className = "slot";
-      if (isVoid(r, c)) {
-        slot.classList.add("void");
+      if (findMatches().matched.size > 0) {
+        movesLeft = Math.max(0, movesLeft - 1);
+        syncHud();
+        await resolveCascades(1);
       } else {
-        if (frost.has(`${r},${c}`)) slot.classList.add("frosting");
-        if (selected && selected.r === r && selected.c === c) slot.classList.add("selected");
-        const item = grid[r][c];
-        if (item) {
-          const piece = document.createElement("div");
-          piece.className = `piece p${item.type}`;
-          if (item.special === "line") piece.classList.add("sp-line");
-          if (item.special === "bomb") piece.classList.add("sp-bomb");
-          slot.appendChild(piece);
-        }
-        slot.onclick = () => onTap(r, c);
+        isBusy = true;
+        await new Promise(resolve => setTimeout(resolve, 150));
+        const revert = grid[a.r][a.c];
+        grid[a.r][a.c] = grid[b.r][b.c];
+        grid[b.r][b.c] = revert;
+        isBusy = false;
+        syncHud("No match there — try another move");
+        renderBoard();
       }
-      fieldEl.appendChild(slot);
     }
-  }
-}
 
-nextBtn.onclick = () => startLevel(level + 1);
-document.getElementById("reset-btn").onclick = () => startLevel(level);
-document.getElementById("hammer-btn").onclick = () => {
-  if (!busy && hammers > 0) { mode = mode === "hammer" ? null : "hammer"; syncUI(mode ? "Tap a candy to smash" : "Ready"); }
-};
-document.getElementById("bomb-btn").onclick = () => {
-  if (!busy && bombs > 0) { mode = mode === "bomb" ? null : "bomb"; syncUI(mode ? "Tap for 3x3 blast" : "Ready"); }
-};
-document.getElementById("shuffle-btn").onclick = () => {
-  if (busy || shuffles <= 0) return;
-  shuffles--;
-  const list = [];
-  for (let r = 0; r < SIZE; r++) for (let c = 0; c < SIZE; c++) if (grid[r][c]) list.push(grid[r][c]);
-  list.sort(() => Math.random() - 0.5);
-  let idx = 0;
-  for (let r = 0; r < SIZE; r++) for (let c = 0; c < SIZE; c++) if (grid[r][c]) grid[r][c] = list[idx++];
-  syncUI("Candies shuffled!");
-  draw();
-};
+    async function handleCellAction(r, c) {
+      if (isBusy || levelCompleted || movesLeft <= 0 || !inBounds(r, c) || !grid[r][c]) return;
 
-startLevel(1);
+      if (activeBooster === "hammer" && hammerCount > 0) {
+        hammerCount--;
+        activeBooster = null;
+        frosting.delete(`${r},${c}`);
+        if (grid[r][c].type === goalCandyType) goalCleared++;
+        grid[r][c] = null;
+        score += 50;
+        applyGravityAndRefill();
+        syncHud("Smashed!");
+        renderBoard();
+        await resolveCascades(1);
+        return;
+      }
+
+      if (activeBooster === "bomb" && bombCount > 0) {
+        bombCount--;
+        activeBooster = null;
+        for (let dr = -1; dr <= 1; dr++) {
+          for (let dc = -1; dc <= 1; dc++) {
+            const nr = r + dr;
+            const nc = c + dc;
+            if (inBounds(nr, nc)) {
+              frosting.delete(`${nr},${nc}`);
+              if (grid[nr][nc]?.type === goalCandyType) goalCleared++;
+              grid[nr][nc] = null;
+            }
+          }
+        }
+        score += 150;
+        applyGravityAndRefill();
+        syncHud("3x3 Blast!");
+        renderBoard();
+        await resolveCascades(1);
+        return;
+      }
+
+      if (!selected) {
+        selected = { r, c };
+        renderBoard();
+        return;
+      }
+
+      if (selected.r === r && selected.c === c) {
+        selected = null;
+        renderBoard();
+        return;
+      }
+
+      if (Math.abs(selected.r - r) + Math.abs(selected.c - c) === 1) {
+        await trySwap(selected, { r, c });
+      } else {
+        selected = { r, c };
+        renderBoard();
+      }
+    }
+
+    function renderBoard() {
+      playfieldEl.innerHTML = "";
+      for (let r = 0; r < SIZE; r++) {
+        for (let c = 0; c < SIZE; c++) {
+          const slot = document.createElement("div");
+          slot.className = "slot";
+
+          if (!inBounds(r, c)) {
+            slot.classList.add("void");
+          } else {
+            if (frosting.has(`${r},${c}`)) slot.classList.add("frosting");
+            if (selected && selected.r === r && selected.c === c) slot.classList.add("selected");
+
+            const item = grid[r][c];
+            if (item) {
+              const candy = document.createElement("div");
+              candy.className = `piece p${item.type}`;
+              if (item.special === "line") candy.classList.add("sp-line");
+              if (item.special === "bomb") candy.classList.add("sp-bomb");
+              slot.appendChild(candy);
+            }
+
+            // Support both click/tap and touch/pointer swipe gestures
+            slot.addEventListener("pointerdown", (e) => {
+              if (isBusy || levelCompleted) return;
+              pointerStart = { r, c, x: e.clientX, y: e.clientY, swiped: false };
+            });
+
+            slot.addEventListener("pointermove", (e) => {
+              if (!pointerStart || pointerStart.swiped || isBusy || levelCompleted || activeBooster) return;
+              const dx = e.clientX - pointerStart.x;
+              const dy = e.clientY - pointerStart.y;
+              const threshold = 22;
+              if (Math.hypot(dx, dy) >= threshold) {
+                pointerStart.swiped = true;
+                let dr = 0;
+                let dc = 0;
+                if (Math.abs(dx) > Math.abs(dy)) {
+                  dc = dx > 0 ? 1 : -1;
+                } else {
+                  dr = dy > 0 ? 1 : -1;
+                }
+                const target = { r: pointerStart.r + dr, c: pointerStart.c + dc };
+                const origin = { r: pointerStart.r, c: pointerStart.c };
+                pointerStart = null;
+                trySwap(origin, target);
+              }
+            });
+
+            slot.addEventListener("click", () => {
+              if (pointerStart && pointerStart.swiped) {
+                pointerStart = null;
+                return;
+              }
+              pointerStart = null;
+              handleCellAction(r, c);
+            });
+          }
+
+          playfieldEl.appendChild(slot);
+        }
+      }
+    }
+
+    nextLevelBtn.addEventListener("click", () => {
+      if (!isBusy && levelCompleted) {
+        startLevel(currentLevel + 1, true);
+      }
+    });
+
+    document.getElementById("btn-reset").addEventListener("click", () => {
+      if (!isBusy) {
+        startLevel(currentLevel, false);
+      }
+    });
+
+    document.getElementById("btn-hammer").addEventListener("click", () => {
+      if (isBusy || levelCompleted || hammerCount <= 0) return;
+      activeBooster = activeBooster === "hammer" ? null : "hammer";
+      syncHud(activeBooster ? "Tap any candy to smash it" : "Booster cancelled");
+    });
+
+    document.getElementById("btn-bomb").addEventListener("click", () => {
+      if (isBusy || levelCompleted || bombCount <= 0) return;
+      activeBooster = activeBooster === "bomb" ? null : "bomb";
+      syncHud(activeBooster ? "Tap a candy for a 3x3 blast" : "Booster cancelled");
+    });
+
+    document.getElementById("btn-shuffle").addEventListener("click", () => {
+      if (isBusy || levelCompleted || shuffleCount <= 0) return;
+      shuffleCount--;
+      const pieces = [];
+      for (let r = 0; r < SIZE; r++) {
+        for (let c = 0; c < SIZE; c++) {
+          if (inBounds(r, c) && grid[r][c]) pieces.push(grid[r][c]);
+        }
+      }
+      for (let i = pieces.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pieces[i], pieces[j]] = [pieces[j], pieces[i]];
+      }
+      let idx = 0;
+      for (let r = 0; r < SIZE; r++) {
+        for (let c = 0; c < SIZE; c++) {
+          if (inBounds(r, c) && grid[r][c]) grid[r][c] = pieces[idx++];
+        }
+      }
+      selected = null;
+      syncHud("Candies shuffled!");
+      renderBoard();
+    });
+
+    startLevel(1, false);
   </script>
 </body>
 </html>
